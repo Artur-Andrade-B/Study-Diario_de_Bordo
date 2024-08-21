@@ -1,0 +1,27 @@
+<!DOCTYPE html> <!--Tipo de documento "Neste caso HTML 5" -->
+<html lang="pt-br"> <!-- Idioma do Site -->>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+    <title>Login do Professor</title>
+</head>
+<body>
+    <h2>Login Page</h2> 
+    <form action="/login_inst" method="POST"><!-- Tag de formulario -->>
+        <label for="p_id"> Id do Professor: </label>
+        <input type="text" id="p_id" name="p_id" maxlength="10" required>
+        <label for="pass"> Senha: </label>
+        <input type="text" id="p_s" name="pass" required>
+        <input type="submit" id="botaoen"value="Enviar">
+
+        {% if mensagem %}
+        <div class="mensagem">
+            {{mensagem}}
+        </div>
+        {% endif %}
+        
+    </form>
+    <a href="/">Retornar a Pagina do aluno</a>>
+</body>
+</html>
