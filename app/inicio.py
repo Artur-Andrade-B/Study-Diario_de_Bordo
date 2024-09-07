@@ -18,7 +18,7 @@ placeholder_user = "admin"
 placeholder_pass = "admin"
 
 user = "root"
-password = urllib.parse.quote_plus("senai@123")
+password = urllib.parse.quote_plus("0413")
 
 host = "localhost"
 database = "projetodiario"
