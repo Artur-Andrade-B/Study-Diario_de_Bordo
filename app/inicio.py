@@ -12,6 +12,9 @@ import pandas as pd
 import hashlib
 import getpass
 from datetime import datetime, timezone
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -40,8 +43,6 @@ session = Session()
 
 
 app = Flask(__name__)
-
-
 
 @app.route("/")
 def index():
@@ -155,10 +156,11 @@ def diario_por_ra():
     nome = request.form.get('nome')
     ra = request.form.get('ra')
     aluno = session.query(Aluno).filter_by(ra=ra).first()
+    nomeal = aluno.nome
 
     if aluno:
         diariobordo_entries = session.query(Diariodebordo).filter_by(fk_aluno_id=aluno.id).all()
-        return render_template("diarioindv.html", aluno=aluno, diariobordo_entries=diariobordo_entries, nome=nome)
+        return render_template("diarioindv.html", aluno=aluno, diariobordo_entries=diariobordo_entries, nome=nome,nomeal=nomeal)
     else:
         mensagem = "Aluno não encontrado"
         return render_template("lista_alunos.html", mensagem=mensagem)
