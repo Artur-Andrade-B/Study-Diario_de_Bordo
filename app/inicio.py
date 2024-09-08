@@ -115,7 +115,7 @@ def submit_diario():
     return render_template("diariobordo.html", ra=ra, nome=nome, mensagem=mensagem)
 
 @app.route("/instrutor")
-def acess_pro():
+def acess_prof():
     return render_template("prof_login.html")
 
 @app.route("/login_inst", methods=["POST"])

@@ -1,17 +1,27 @@
-<!DOCTYPE html> <!--Tipo de documento "Neste caso HTML 5" -->
-<html lang="pt-br"> <!-- Idioma do Site -->>
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
-    <title>Diário de Bordo</title>
+    <title>Início</title>
 </head>
 <body>
-    <h2>Login Page</h2> 
-    <form action="/login" method="POST"><!-- Tag de formulario -->>
+    <div class="tabs">
+        <div class="left">
+            <button class="active" onclick="location.href='/'">Inicio</button>
+        </div>
+        <div class="right">
+            <button onclick="location.href='{{ url_for('realizar_cadastro') }}'">Cadastro</button>
+            <button onclick="location.href='{{ url_for('acess_prof') }}'">Acesso do Instrutor</button>
+            <button onclick="showPopup('Por favor preencha o RA e clique em enviar')">Diário de Bordo</button>
+        </div>
+    </div>
+    <h2>Login Page</h2>
+    <form action="/login" method="POST">
         <label for="ra"> RA: </label>
         <input type="text" id="ra" name="ra" maxlength="8" required>
-        <input type="submit" id="botaoen"value="Enviar">
+        <input type="submit" id="botaoen" value="Enviar">
         {% if mensagem %}
         <div class="mensagem">
             {{mensagem}}
@@ -22,9 +32,17 @@
             {{msgbanco}}
         </div>
         {% endif %}
-        
     </form>
-    <a href="{{ url_for('realizar_cadastro')}}">Cadastre-se</a>
-    <a href="/instrutor">Acesso do Professor</a>
+    <div id="popup" class="popup"></div>
+    <script>
+        function showPopup(message) {
+            var popup = document.getElementById('popup');
+            popup.textContent = message;
+            popup.classList.add('active');
+            setTimeout(function() {
+                popup.classList.remove('active');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

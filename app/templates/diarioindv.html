@@ -4,44 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Alunos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .search-container {
-            margin-bottom: 20px;
-        }
-    </style>
     <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
 </head>
 <body>
+    <div class="tabs">
+        <div class="left">
+            <button onclick="location.href='/'">Logout</button>
+        </div>
+        <div class="right">
+            <form action="{{ url_for('area_prof', nome=nome)}}" method="POST">
+                <input type="hidden" name="nome" value="{{ nome }}">
+                <button type="submit">Voltar para a página do instrutor</button>
+            </form>
+            <form action="{{ url_for('listar_alunos') }}" method="POST">
+                <input type="hidden" name="nome" value="{{ nome }}">
+                <button type="submit">Acesse a lista de alunos</button>
+            </form>
+            <button class="active">Diário de Bordo</button>
+        </div>
+    </div>
     <h1>Lista de Alunos</h1>
     <hr>
     <!-- Search Form -->
@@ -66,15 +48,16 @@
           pagination: true,
         }).render(document.getElementById('table'));
     </script>
-
-    <form action="{{ url_for('area_prof')}}" method="POST">
-        <input type="hidden" name="nome" value="{{ nome }}">
-        <button type="submit">Voltar para a página do instrutor</button>
-    </form>
-
-    <form action="{{ url_for('listar_alunos')}}" method="POST">
-        <input type="hidden" name="nome" value="{{ nome }}">
-        <button type="submit">Voltar para a lista de alunos</button>
-    </form>
+        <div id="popup" class="popup"></div>
+    <script>
+        function showPopup(message) {
+            var popup = document.getElementById('popup');
+            popup.textContent = message;
+            popup.classList.add('active');
+            setTimeout(function() {
+                popup.classList.remove('active');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

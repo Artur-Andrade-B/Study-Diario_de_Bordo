@@ -7,18 +7,33 @@
     <title>Área do Instrutor</title>
 </head>
 <body>
-    <h2>Bem-vindo {{ nome }}</h2>
-    <hr>
-
-    <form action="{{ url_for('listar_alunos') }}" method="POST">
-        <input type="hidden" name="nome" value="{{ nome }}">
-        <button type="submit">Acesse a lista de alunos</button>
-    </form>
-
-    {% if mensagem %}
-        <div class="mensagem">
-            {{ mensagem }}
+    <div class="tabs">
+        <div class="left">
+            <button onclick="location.href='/'">Logout</button>
+            <buttom class="active">Usuario: {{nome}}</buttom>
         </div>
-    {% endif %}
+        <div class="right">
+            <button class="active">Área do Instrutor</button>
+            <form action="{{ url_for('listar_alunos') }}" method="POST">
+                <input type="hidden" name="nome" value="{{ nome }}">
+                <button type="submit">Acesse a lista de alunos</button>
+            </form>
+            <button onclick="showPopup('Por favor acesse a lista de alunos primeiro')">Diário de Bordo</button>
+        </div>
+    </div>
+    <h1>Área do Instrutor</h1>
+    <hr>
+    <!-- Content for the area_prof page -->
+    <div id="popup" class="popup"></div>
+    <script>
+        function showPopup(message) {
+            var popup = document.getElementById('popup');
+            popup.textContent = message;
+            popup.classList.add('active');
+            setTimeout(function() {
+                popup.classList.remove('active');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

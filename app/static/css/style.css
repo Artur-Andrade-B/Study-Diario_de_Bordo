@@ -1,24 +1,27 @@
-body{
-    background-color: rgba(42, 119, 152, 0.653);
+body {
+  background-color: rgba(42, 119, 152, 0.653);
 }
-form{
-    color:rgb(22, 9, 125);
+
+form {
+  color: rgb(22, 9, 125);
 }
-#botaoen{
-    color:rgb(26, 49, 222);
-    background-color: rgb(214, 226, 237);
-    border-radius: 7px;
-    transition-duration: 0.5s;
-    cursor: pointer;
-    
+
+#botaoen {
+  color: rgb(26, 49, 222);
+  background-color: rgb(214, 226, 237);
+  border-radius: 7px;
+  transition-duration: 0.5s;
+  cursor: pointer;
 }
-#botaoen:hover{
-    background-color: rgb(173, 183, 193);
-    transform: scale(12px);
-    color: #ffffff;
-    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+
+#botaoen:hover {
+  background-color: rgb(173, 183, 193);
+  transform: scale(1.1); /* Adjusted scale for button hover */
+  color: #ffffff;
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
-#botaoen:after{
+
+#botaoen:after {
   content: "";
   background: #f1f1f1;
   display: block;
@@ -28,15 +31,17 @@ form{
   margin-left: -20px !important;
   margin-top: -120%;
   opacity: 0;
-  transition: all 0.8s
+  transition: all 0.8s;
 }
-#botaoen:active:after{
+
+#botaoen:active:after {
   padding: 0;
   margin: 0;
   opacity: 1;
-  transition: 0s
+  transition: 0s;
 }
-#ra.tooltip.tooltiptext{
+
+#ra.tooltip.tooltiptext {
   visibility: hidden;
   width: 120px;
   background-color: black;
@@ -47,6 +52,58 @@ form{
   position: absolute;
   z-index: 1;
 }
-#ra.tooltip:hover .tooltiptext{
-    visibility: visible;
+
+#ra.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+/* Unified Navigation Bar */
+.tabs {
+  display: flex;
+  justify-content: space-between; /* Space between the left-aligned and right-aligned sections */
+  background-color: #ffffff; /* Background color for the navbar */
+  padding: 10px 20px; /* Padding around the navbar */
+  border-bottom: 2px solid #ddd; /* Border for visual separation */
+}
+
+.tabs .left {
+  display: flex;
+  gap: 10px; /* Gap between the buttons on the left */
+}
+
+.tabs .right {
+  display: flex;
+  gap: 0; /* No gap between the buttons on the right */
+}
+
+.tabs button {
+  background-color: transparent; /* Transparent background */
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, font-weight 0.3s ease;
+}
+
+.tabs button:hover,
+.tabs button.active {
+  background-color: #e0e0e0; /* Slightly darker background for active/hover */
+  font-weight: bold; /* Highlights the active button */
+}
+
+/* Styles for the pop-up message */
+.popup {
+  display: none; /* Hidden by default */
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  top: 50px; /* Adjust position as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.popup.active {
+  display: block;
 }

@@ -1,14 +1,24 @@
-<!DOCTYPE html> <!--Tipo de documento "Neste caso HTML 5" -->
-<html lang="pt-br"> <!-- Idioma do Site -->>
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
-    <title>Login do Professor</title>
+    <title>Acesso do Instrutor</title>
 </head>
 <body>
-    <h2>Login Page</h2> 
-    <form action="/login_inst" method="POST"><!-- Tag de formulario -->>
+    <div class="tabs">
+        <div class="left">
+            <button onclick="location.href='/'">Inicio</button>
+        </div>
+        <div class="right">
+            <button onclick="location.href='{{ url_for('realizar_cadastro') }}'">Cadastro</button>
+            <button class="active" onclick="location.href='{{ url_for('acess_prof') }}'">Acesso do Instrutor</button>
+            <button onclick="showPopup('Retorne a página inicial e preencha o campo de RA')">Diário de Bordo</button>            
+        </div>
+    </div>
+    <h2>Login do Instrutor</h2>
+    <form action="/login_inst" method="POST">
         <label for="p_id"> Id do Professor: </label>
         <input type="text" id="p_id" name="p_id" maxlength="10" required>
         <label for="pass"> Senha: </label>
@@ -22,6 +32,16 @@
         {% endif %}
         
     </form>
-    <a href="/">Retornar a Pagina do aluno</a>>
+    <div id="popup" class="popup"></div>
+    <script>
+        function showPopup(message) {
+            var popup = document.getElementById('popup');
+            popup.textContent = message;
+            popup.classList.add('active');
+            setTimeout(function() {
+                popup.classList.remove('active');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
