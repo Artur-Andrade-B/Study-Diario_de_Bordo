@@ -10,5 +10,14 @@
     <h2>Bem vindo {{nome}}</h2>
     <h2>O seu ra e: {{ra}}</h2> 
     <a href="{{ url_for('register_aluno')}}">Cadastre-se</a>
+    
+    <form action="{{ url_for('submit_diario') }}" method="POST">
+        <label for="texto">Compartilhe seus sentimentos sobre a aula:</label><br>
+        <textarea id="texto" name="texto" rows="10" cols="50" required></textarea><br>
+        <input type="submit" value="Enviar">
+        <input type="hidden" name="ra" value="{{ ra }}">
+        <input type="hidden" name="nome" value="{{ nome }}">
+    </form>
+
 </body>
 </html>

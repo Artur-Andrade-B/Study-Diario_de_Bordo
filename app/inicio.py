@@ -6,16 +6,15 @@ import pymysql
 import urllib.parse
 from aluno import Aluno
 from instrutor import Instrutor
+from diariobordo import Diariodebordo
 import random
 import pandas as pd
 import hashlib
 import getpass
+from datetime import datetime, timezone
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
-
-placeholder_user = "admin"
-placeholder_pass = "admin"
 
 user = "root"
 password = urllib.parse.quote_plus("0413")
@@ -34,20 +33,15 @@ base.prepare()
 
 Aluno = base.classes.aluno
 Instrutor = base.classes.instrutor
+Diariodebordo = base.classes.diariobordo 
 
 Session = sessionmaker(bind=engine)
 session = Session()
-
-test = random.randrange(1,1000000)
-routevar = "/login"
 
 
 app = Flask(__name__)
 
 
-@app.route("/alomundo")
-def ola():
-    return "Hello world!"
 
 @app.route("/")
 def index():
@@ -64,7 +58,7 @@ def login_prof():
     password_s = request.form["pass"]
     password_h = hash_password(password_s)
     if user.user_name == request.form["p_id"] and user.password_hash == password_h:
-        return redirect("/alunos")
+        return redirect("/AcessoDoProfessor")
     else:
         mensagem = "Os dados do login estão incorretos"
         return render_template("prof_login.html", mensagem = mensagem)
@@ -99,7 +93,7 @@ def register_aluno():
         mensagem = "cadastro efetuado com sucesso"
         return render_template("index.html", msgbanco = mensagem)
 
-@app.route(f"{routevar}", methods=["POST"])
+@app.route("/login", methods=["POST"])
 def login_ra():
     ra = request.form["ra"]
     
@@ -112,11 +106,32 @@ def login_ra():
         mensagem = "o ra está invalido"
         return render_template("index.html", mensagem = mensagem)
 
-@app.route("/diariodebordo")
-def diario_bordo():
-    return render_template("diariobordo.html")
+@app.route("/submit_diario", methods=["POST"])
+def submit_diario():
+    ra = request.form["ra"]
+    nome = request.form["nome"]
+    texto = request.form["texto"]
+    data_hora = datetime.now(timezone.utc)
+    aluno = session.query(Aluno).filter_by(ra=ra).first()
+    fk = aluno.id
 
-@app.route('/alunos', methods=['GET'])
+    if aluno:
+        diario = Diariodebordo(texto=texto, data_hora=data_hora, fk_aluno_id=fk)
+        try:
+            session.add(diario)
+            session.commit()
+            mensagem = "Texto enviado com sucesso"
+        except:
+            session.rollback()
+            mensagem = "Erro ao enviar o texto"
+        finally:
+            session.close()
+    else:
+        mensagem = "RA inválido"
+
+    return render_template("diariobordo.html", ra=ra, nome=nome, mensagem=mensagem)
+
+@app.route('/AcessoDoProfessor', methods=['GET'])
 def listar_alunos():
     try:
         alunos = session.query(Aluno).all()
