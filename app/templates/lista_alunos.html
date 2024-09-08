@@ -36,31 +36,36 @@
             background-color: #f1f1f1;
         }
     </style>
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 </head>
 <body>
     <h1>Lista de Alunos</h1>
-
-    {% if alunos %}
-        <table>
-            <tr>
-                <th>RA</th>
-                <th>Nome</th>
-                <th>Tempo de Estudo (meses)</th>
-                <th>Renda Familiar (R$)</th>
-            </tr>
+    <hr>
+    <div id="table"></div>
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+    <script>
+        new gridjs.Grid({
+          columns: [
+            { id: 'ra', name: 'RA' },
+            { id: 'nome', name: 'Nome' },
+            { id: 'tempo_de_estudo', name: 'Tempo de Estudo', sort: false },
+            { id: 'renda_media_salarial', name: 'Renda Media Salarial', sort: false },
+          ],
+          data: [
             {% for aluno in alunos %}
-            <tr>
-                <td>{{ aluno.ra }}</td>
-                <td>{{ aluno.nome }}</td>
-                <td>{{ aluno.tempo_de_estudo }}</td>
-                <td>{{ aluno.renda_media_salarial }}</td>
-            </tr>
+              [
+                '{{ aluno.ra }}',
+                '{{ aluno.nome }}',
+                '{{ aluno.tempo_de_estudo }}',
+                '{{ aluno.renda_media_salarial }}'
+              ],
             {% endfor %}
-        </table>
-    {% else %}
-        <p>Nenhum aluno cadastrado.</p>
-    {% endif %}
-
+          ],
+          search: true,
+          sort: true,
+          pagination: true,
+        }).render(document.getElementById('table'));
+    </script>
     <a href="/">Voltar para a página inicial</a>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request, redirect
+from flask import Flask,render_template,request, redirect, jsonify
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.automap import automap_base
@@ -143,4 +143,5 @@ def listar_alunos():
         session.close()
 
     return render_template('lista_alunos.html', alunos=alunos)
+
 app.run()
