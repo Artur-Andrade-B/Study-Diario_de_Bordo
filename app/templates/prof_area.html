@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+    <title>Área do Instrutor</title>
+</head>
+<body>
+    <h2>Bem-vindo {{ nome }}</h2>
+    <hr>
+
+    <form action="{{ url_for('listar_alunos') }}" method="POST">
+        <input type="hidden" name="nome" value="{{ nome }}">
+        <button type="submit">Acesse a lista de alunos</button>
+    </form>
+
+    {% if mensagem %}
+        <div class="mensagem">
+            {{ mensagem }}
+        </div>
+    {% endif %}
+</body>
+</html>

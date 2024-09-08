@@ -44,31 +44,20 @@
 <body>
     <h1>Lista de Alunos</h1>
     <hr>
-    <div class="search-container">
-        <form action="{{ url_for('diario_por_ra', nome=nome )}}" method="POST">
-            <label for="ra">Buscar Diário por RA:</label>
-            <input type="text" id="ra" name="ra" required>
-            <input type="hidden" id="nome" name="nome">
-            <button type="submit">Buscar</button>
-        </form>
-    </div>
+    <!-- Search Form -->
     <div id="table"></div>
     <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
     <script>
         new gridjs.Grid({
           columns: [
-            { id: 'ra', name: 'RA' },
-            { id: 'nome', name: 'Nome' },
-            { id: 'tempo_de_estudo', name: 'Tempo de Estudo', sort: false },
-            { id: 'renda_media_salarial', name: 'Renda Media Salarial', sort: false },
+            { id: 'texto', name: 'Diario de Bordo' },
+            { id: 'data_hora', name: 'Data e hora' },
           ],
           data: [
-            {% for aluno in alunos %}
+            {% for diario in diariobordo_entries %}
               [
-                '{{ aluno.ra }}',
-                '{{ aluno.nome }}',
-                '{{ aluno.tempo_de_estudo }}',
-                '{{ aluno.renda_media_salarial }}'
+                '{{ diario.texto }}',
+                '{{ diario.data_hora }}',
               ],
             {% endfor %}
           ],
@@ -77,9 +66,15 @@
           pagination: true,
         }).render(document.getElementById('table'));
     </script>
-    <form action="{{ url_for('area_prof', nome=nome)}}" method="POST">
+
+    <form action="{{ url_for('area_prof')}}" method="POST">
         <input type="hidden" name="nome" value="{{ nome }}">
         <button type="submit">Voltar para a página do instrutor</button>
+    </form>
+
+    <form action="{{ url_for('listar_alunos')}}" method="POST">
+        <input type="hidden" name="nome" value="{{ nome }}">
+        <button type="submit">Voltar para a lista de alunos</button>
     </form>
 </body>
 </html>

@@ -47,23 +47,6 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/instrutor")
-def acess_pro():
-    return render_template("prof_login.html")
-
-@app.route("/login_inst", methods=["POST"])
-def login_prof():
-    name = request.form["p_id"]
-    user = session.query(Instrutor).filter_by(user_name=name).first()
-    password_s = request.form["pass"]
-    password_h = hash_password(password_s)
-    if user.user_name == request.form["p_id"] and user.password_hash == password_h:
-        return redirect("/AcessoDoProfessor")
-    else:
-        mensagem = "Os dados do login estão incorretos"
-        return render_template("prof_login.html", mensagem = mensagem)
-
-
 @app.route("/registrar")
 def realizar_cadastro():
     return render_template("novoaluno.html")
@@ -120,7 +103,7 @@ def submit_diario():
         try:
             session.add(diario)
             session.commit()
-            mensagem = "Texto enviado com sucesso"
+            mensagem = "Texto enviado com sucesso!"
         except:
             session.rollback()
             mensagem = "Erro ao enviar o texto"
@@ -131,8 +114,31 @@ def submit_diario():
 
     return render_template("diariobordo.html", ra=ra, nome=nome, mensagem=mensagem)
 
-@app.route('/AcessoDoProfessor', methods=['GET'])
+@app.route("/instrutor")
+def acess_pro():
+    return render_template("prof_login.html")
+
+@app.route("/login_inst", methods=["POST"])
+def login_prof():
+    name = request.form["p_id"]
+    user = session.query(Instrutor).filter_by(user_name=name).first()
+    password_s = request.form["pass"]
+    password_h = hash_password(password_s)
+    if user.user_name == request.form["p_id"] and user.password_hash == password_h:
+        return render_template("prof_area.html", user=user, nome=name)
+    else:
+        mensagem = "Os dados do login estão incorretos"
+        return render_template("prof_login.html", mensagem = mensagem)
+
+@app.route("/AreaDoInstrutor", methods=["POST"])
+def area_prof():
+    nome = request.form.get('nome')
+    return render_template("prof_area.html", nome=nome)
+
+@app.route('/AcessoDoProfessor', methods=['POST'])
 def listar_alunos():
+    nome = request.form.get('nome')
+
     try:
         alunos = session.query(Aluno).all()
     except:
@@ -142,6 +148,18 @@ def listar_alunos():
     finally:
         session.close()
 
-    return render_template('lista_alunos.html', alunos=alunos)
+    return render_template('lista_alunos.html', alunos=alunos, nome=nome)
 
+@app.route("/diario_por_ra", methods=["POST"])
+def diario_por_ra():
+    nome = request.form.get('nome')
+    ra = request.form.get('ra')
+    aluno = session.query(Aluno).filter_by(ra=ra).first()
+
+    if aluno:
+        diariobordo_entries = session.query(Diariodebordo).filter_by(fk_aluno_id=aluno.id).all()
+        return render_template("diarioindv.html", aluno=aluno, diariobordo_entries=diariobordo_entries, nome=nome)
+    else:
+        mensagem = "Aluno não encontrado"
+        return render_template("lista_alunos.html", mensagem=mensagem)
 app.run()
