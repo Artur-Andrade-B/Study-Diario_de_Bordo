@@ -20,7 +20,7 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 user = "root"
-password = urllib.parse.quote_plus("0413")
+password = urllib.parse.quote_plus("senai@123")
 
 host = "localhost"
 database = "projetodiario"
