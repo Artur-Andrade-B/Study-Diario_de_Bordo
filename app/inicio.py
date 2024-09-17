@@ -15,12 +15,13 @@ from datetime import datetime, timezone
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly.io as pio
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 user = "root"
-password = urllib.parse.quote_plus("senai@123")
+password = urllib.parse.quote_plus("0413")
 
 host = "localhost"
 database = "projetodiario"
@@ -134,7 +135,60 @@ def login_prof():
 @app.route("/AreaDoInstrutor", methods=["POST"])
 def area_prof():
     nome = request.form.get('nome')
-    return render_template("prof_area.html", nome=nome)
+
+    try:
+
+        diariobordo_entries = session.query(Diariodebordo).all()
+
+        if not diariobordo_entries:
+
+            return render_template("prof_area.html", nome=nome, graph_html="<p>Sem dados para exibir.</p>")
+
+
+        data = {'data_hora': [entry.data_hora.date() for entry in diariobordo_entries]}
+        df_diario = pd.DataFrame(data)
+
+        start_date = df_diario['data_hora'].min()
+        end_date = datetime.now().date()  
+        all_dates = pd.date_range(start=start_date, end=end_date, freq='D')
+
+        df_diario_count = df_diario.groupby('data_hora').size().reindex(all_dates, fill_value=0).reset_index(name='count')
+        df_diario_count.columns = ['data_hora', 'count']
+
+  
+        num_days = len(df_diario_count)
+        graph_width = min(1000 + (num_days * 5), 2000)  
+
+        fig = px.line(df_diario_count, x='data_hora', y='count', title='Número de Entradas de Diário de Bordo por Dia')
+        fig.update_layout(
+            width=graph_width,
+            height=500,
+            xaxis_title='Data',
+            yaxis_title='Número de Entradas',
+            xaxis=dict(
+                tickmode='linear',
+                tickvals=df_diario_count['data_hora'],
+                tickformat="%Y-%m-%d",
+                tickangle=-45
+            )         
+        )
+        fig.update_traces(
+            line_color="purple", 
+            line_width=3, 
+            line_dash="dash"
+            )
+
+        graph_html = pio.to_html(fig, full_html=False)
+
+    except Exception as e:
+        session.rollback()
+        print(f"Error: {e}")
+        graph_html = "<p>Erro ao gerar o gráfico.</p>"
+
+    finally:
+        session.close()
+
+    return render_template("prof_area.html", nome=nome, graph_html=graph_html)
 
 @app.route('/AcessoDoProfessor', methods=['POST'])
 def listar_alunos():
