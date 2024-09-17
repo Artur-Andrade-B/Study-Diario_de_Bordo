@@ -16,9 +16,19 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.io as pio
+from wordcloud import WordCloud, STOPWORDS
+from io import BytesIO
+import base64
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+def plot_cloud(wordcloud, image_path):
+    plt.figure(figsize=(40,30))
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.savefig(image_path, bbox_inches='tight')
+    plt.close()
 
 user = "root"
 password = urllib.parse.quote_plus("0413")
@@ -180,6 +190,18 @@ def area_prof():
 
         graph_html = pio.to_html(fig, full_html=False)
 
+
+        texto_entries = [entry.texto for entry in diariobordo_entries]
+        texto_combined = ' '.join(texto_entries)
+        wordcloud = WordCloud(width=500, height=500, random_state=1, background_color="grey", colormap="Blues", collocations=False, stopwords=STOPWORDS).generate(texto_combined)
+
+
+        img_stream = BytesIO()
+        wordcloud.to_image().save(img_stream, format='PNG')
+        img_stream.seek(0)
+        img_base64 = base64.b64encode(img_stream.getvalue()).decode('utf-8')
+        img_data = f"data:image/png;base64,{img_base64}"
+
     except Exception as e:
         session.rollback()
         print(f"Error: {e}")
@@ -188,7 +210,7 @@ def area_prof():
     finally:
         session.close()
 
-    return render_template("prof_area.html", nome=nome, graph_html=graph_html)
+    return render_template("prof_area.html", nome=nome, graph_html=graph_html, wordcloud_image_data=img_data)
 
 @app.route('/AcessoDoProfessor', methods=['POST'])
 def listar_alunos():

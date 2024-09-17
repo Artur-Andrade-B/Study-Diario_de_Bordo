@@ -30,6 +30,10 @@
     <div id="plotly-graph">
         {{ graph_html | safe}}
     </div>
+    <hr>
+    <div id="wordcloud-container">
+        <img src="{{ wordcloud_image_data }}" alt="Word Cloud">
+    </div>
     
     <script>
         function showPopup(message) {
