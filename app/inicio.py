@@ -137,7 +137,70 @@ def login_prof():
     password_s = request.form["pass"]
     password_h = hash_password(password_s)
     if user.user_name == request.form["p_id"] and user.password_hash == password_h:
-        return render_template("prof_area.html", user=user, nome=name)
+        try:
+
+            diariobordo_entries = session.query(Diariodebordo).all()
+
+            if not diariobordo_entries:
+
+                return render_template("prof_area.html", nome=nome, graph_html="<p>Sem dados para exibir.</p>")
+
+
+            data = {'data_hora': [entry.data_hora.date() for entry in diariobordo_entries]}
+            df_diario = pd.DataFrame(data)
+
+            start_date = df_diario['data_hora'].min()
+            end_date = datetime.now().date()  
+            all_dates = pd.date_range(start=start_date, end=end_date, freq='D')
+
+            df_diario_count = df_diario.groupby('data_hora').size().reindex(all_dates, fill_value=0).reset_index(name='count')
+            df_diario_count.columns = ['data_hora', 'count']
+
+    
+            num_days = len(df_diario_count)
+            graph_width = min(1000 + (num_days * 5), 2000)  
+
+            fig = px.line(df_diario_count, x='data_hora', y='count', title='Número de Entradas de Diário de Bordo por Dia')
+            fig.update_layout(
+                width=graph_width,
+                height=500,
+                xaxis_title='Data',
+                yaxis_title='Número de Entradas',
+                xaxis=dict(
+                    tickmode='linear',
+                    tickvals=df_diario_count['data_hora'],
+                    tickformat="%Y-%m-%d",
+                    tickangle=-45
+                )         
+            )
+            fig.update_traces(
+                line_color="purple", 
+                line_width=3, 
+                line_dash="dash"
+                )
+
+            graph_html = pio.to_html(fig, full_html=False)
+
+
+            texto_entries = [entry.texto for entry in diariobordo_entries]
+            texto_combined = ' '.join(texto_entries)
+            wordcloud = WordCloud(width=500, height=500, random_state=1, background_color="grey", colormap="Blues", collocations=False, stopwords=STOPWORDS).generate(texto_combined)
+
+
+            img_stream = BytesIO()
+            wordcloud.to_image().save(img_stream, format='PNG')
+            img_stream.seek(0)
+            img_base64 = base64.b64encode(img_stream.getvalue()).decode('utf-8')
+            img_data = f"data:image/png;base64,{img_base64}"
+
+        except Exception as e:
+            session.rollback()
+            print(f"Error: {e}")
+            graph_html = "<p>Erro ao gerar o gráfico.</p>"
+
+        finally:
+            session.close()
+            return render_template("prof_area.html", user=user, nome=name, graph_html=graph_html, wordcloud_image_data=img_data)
     else:
         mensagem = "Os dados do login estão incorretos"
         return render_template("prof_login.html", mensagem = mensagem)
