@@ -27,6 +27,14 @@
     <hr>
     <div id="popup" class="popup"></div>
 
+    <div id="graph" class="loading">
+        <img src="{{ url_for('static', filename='Placeholder_Loading.gif') }}" alt="Loading...">
+    </div>
+    
+    <!-- Placeholder for Word Cloud -->
+    <div id="wordcloud" class="loading">
+        <img src="{{ url_for('static', filename='Placeholder_Loading.gif') }}" alt="Loading...">
+    </div>
     <div id="plotly-graph">
         {{ graph_html | safe}}
     </div>
@@ -44,6 +52,14 @@
                 popup.classList.remove('active');
             }, 3000);
         }
+    </script>
+    <script>
+        window.onload = function() {
+            document.getElementById('graph').style.display = 'none';
+            document.getElementById('wordcloud').style.display = 'none';
+            document.getElementById('graph-content').style.display = 'block';
+            document.getElementById('wordcloud-content').style.display = 'block';
+        };
     </script>
 </body>
 </html>

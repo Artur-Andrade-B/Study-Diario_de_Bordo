@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.io as pio
 from wordcloud import WordCloud, STOPWORDS
+import io
 from io import BytesIO
 import base64
 
@@ -299,7 +300,16 @@ def diario_por_ra():
 
     if aluno:
         diariobordo_entries = session.query(Diariodebordo).filter_by(fk_aluno_id=aluno.id).all()
-        return render_template("diarioindv.html", aluno=aluno, diariobordo_entries=diariobordo_entries, nome=nome,nomeal=nomeal)
+        all_texts = " ".join(entry.texto for entry in diariobordo_entries)
+        wordcloud = WordCloud(width=300, height=300, random_state=1, background_color="grey", colormap="viridis", collocations=False, stopwords=STOPWORDS).generate(all_texts)
+        
+        # Convert WordCloud to HTML image
+        wordcloud_image = wordcloud.to_image()
+        buffered = io.BytesIO()
+        wordcloud_image.save(buffered, format="PNG")
+        wordcloud_image_data = base64.b64encode(buffered.getvalue()).decode()
+
+        return render_template("diarioindv.html", aluno=aluno, diariobordo_entries=diariobordo_entries, nome=nome,nomeal=nomeal, wordcloud_image_data=f"data:image/png;base64,{wordcloud_image_data}")
     else:
         mensagem = "Aluno não encontrado"
         return render_template("lista_alunos.html", mensagem=mensagem)

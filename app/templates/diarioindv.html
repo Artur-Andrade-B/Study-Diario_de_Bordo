@@ -26,8 +26,14 @@
         </div>
     </div>
     <h1>Diario de bordo do aluno(a) {{nomeal}}</h1>
+
+    <div id="wordcloud-placeholder" class="loading">
+        <img src="{{ url_for('static', filename='Placeholder_Loading.gif') }}" alt="Loading...">
+    </div>
+    <div id="wordcloud-container">
+        <img src="{{ wordcloud_image_data }}" alt="Word Cloud">
+    </div>
     <hr>
-    <!-- Search Form -->
     <div id="table"></div>
     <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
     <script>
@@ -49,6 +55,13 @@
           pagination: true,
         }).render(document.getElementById('table'));
     </script>
+    <script>
+        window.onload = function() {
+            document.getElementById('wordcloud-placeholder').style.display = 'none';
+            document.getElementById('wordcloud-content').style.display = 'block';
+        };
+    </script>
+
         <div id="popup" class="popup"></div>
     <script>
         function showPopup(message) {
