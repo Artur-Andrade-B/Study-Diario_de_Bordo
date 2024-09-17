@@ -9,31 +9,34 @@
 <body>
     <div class="tabs">
         <div class="left">
-            <button onclick="location.href='/'">Inicio</button>
-        </div>
-        <div class="right">
             <button class="active" onclick="location.href='{{ url_for('realizar_cadastro') }}'">Cadastro</button>
             <button onclick="location.href='{{ url_for('acess_prof') }}'">Acesso do Instrutor</button>
             <button onclick="showPopup('Por favor preencha o RA e clique em enviar')">Diário de Bordo</button>
+
+        </div>
+        <div class="right">
+            <button onclick="location.href='/'">Inicio</button>
         </div>
     </div>
     <h2 style="text-align: center;">Cadastro de Aluno</h2>
-    <p>Insira os dados para realizar o seu cadastro</p>
-    <form style="text-align: center;" action="/cadastro" method="POST">
-        <label for="ra">RA:</label>
-        <input type="text" id="ra" name="ra" maxlength="8" required>
-        <br><br>
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" maxlength="50" required>
-        <br><br>
-        <label for="renda_media_salarial">Renda Salarial:</label>
-        <input type="number" id="rms" name="renda_media_salarial" step="0.01">
-        <br><br>
-        <label for="tempo_de_estudo">Qual o seu tempo de estudo semanal:</label>
-        <input type="number" id="ts" name="tempo_de_estudo">
-        <br><br>
-        <input type="submit" id="botaocad" value="Realizar Cadastro">
-    </form>
+    
+    <div>
+        <form action="/cadastro" method="POST">
+            <label for="ra">RA:</label>
+            <input type="text" id="ra" name="ra" maxlength="8" required>
+            <br><br>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" maxlength="50" required>
+            <br><br>
+            <label for="renda_media_salarial">Renda Salarial:</label>
+            <input type="number" id="rms" name="renda_media_salarial" step="0.01">
+            <br><br>
+            <label for="tempo_de_estudo">Qual o seu tempo de estudo semanal:</label>
+            <input type="number" id="ts" name="tempo_de_estudo">
+            <br><br>
+            <input type="submit" id="botaocad" value="Realizar Cadastro">
+        </form>
+    </div>
     <div id="popup" class="popup"></div>
     <script>
         function showPopup(message) {

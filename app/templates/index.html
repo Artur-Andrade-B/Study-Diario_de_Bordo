@@ -9,12 +9,13 @@
 <body>
     <div class="tabs">
         <div class="left">
-            <button class="active" onclick="location.href='/'">Inicio</button>
-        </div>
-        <div class="right">
             <button onclick="location.href='{{ url_for('realizar_cadastro') }}'">Cadastro</button>
             <button onclick="location.href='{{ url_for('acess_prof') }}'">Acesso do Instrutor</button>
             <button onclick="showPopup('Por favor preencha o RA e clique em enviar')">Diário de Bordo</button>
+
+        </div>
+        <div class="right">
+            <button class="active" onclick="location.href='/'">Inicio</button>
         </div>
     </div>
     <h2>Login Page</h2>

@@ -164,4 +164,4 @@ def diario_por_ra():
     else:
         mensagem = "Aluno não encontrado"
         return render_template("lista_alunos.html", mensagem=mensagem)
-app.run()
+app.run(debug=True)

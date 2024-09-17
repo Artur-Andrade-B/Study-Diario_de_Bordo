@@ -11,15 +11,16 @@
 <body>
     <div class="tabs">
         <div class="left">
-            <button onclick="location.href='/'">Logout</button>
-        </div>
-        <div class="right">
             <form action="{{ url_for('area_prof', nome=nome)}}" method="POST">
                 <input type="hidden" name="nome" value="{{ nome }}">
                 <button type="submit">Voltar para a página do instrutor</button>
             </form>
             <button class="active">Acesse a lista de alunos</button>
             <button onclick="showPopup('Por favor preencha o campo de busca e clique em buscar')">Diário de Bordo</button>
+
+        </div>
+        <div class="right">
+            <button onclick="location.href='/'">Logout</button>
         </div>
     </div>
     <h1>Lista de Alunos</h1>
