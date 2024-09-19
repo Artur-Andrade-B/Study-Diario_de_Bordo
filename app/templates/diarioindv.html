@@ -10,7 +10,7 @@
 <body>
     <div class="tabs">
         <div class="left">
-            <form action="{{ url_for('area_prof', nome=nome)}}" method="POST"></form>
+            <form action="{{ url_for('area_prof', nome=nome)}}" method="POST">
                 <input type="hidden" name="nome" value="{{ nome }}">
                 <button type="submit">Voltar para a página do instrutor</button>
             </form>

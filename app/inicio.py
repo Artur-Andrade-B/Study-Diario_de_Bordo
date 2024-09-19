@@ -20,19 +20,13 @@ from wordcloud import WordCloud, STOPWORDS
 import io
 from io import BytesIO
 import base64
+from graphy import Wordy, Ploty
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-def plot_cloud(wordcloud, image_path):
-    plt.figure(figsize=(40,30))
-    plt.imshow(wordcloud)
-    plt.axis("off")
-    plt.savefig(image_path, bbox_inches='tight')
-    plt.close()
-
 user = "root"
-password = urllib.parse.quote_plus("0413")
+password = urllib.parse.quote_plus("senai@123")
 
 host = "localhost"
 database = "projetodiario"
@@ -142,11 +136,6 @@ def login_prof():
 
             diariobordo_entries = session.query(Diariodebordo).all()
 
-            if not diariobordo_entries:
-
-                return render_template("prof_area.html", nome=nome, graph_html="<p>Sem dados para exibir.</p>")
-
-
             data = {'data_hora': [entry.data_hora.date() for entry in diariobordo_entries]}
             df_diario = pd.DataFrame(data)
 
@@ -159,40 +148,18 @@ def login_prof():
 
     
             num_days = len(df_diario_count)
-            graph_width = min(1000 + (num_days * 5), 2000)  
+            graph_width = min(1000 + (num_days * 5), 2000)
 
-            fig = px.line(df_diario_count, x='data_hora', y='count', title='Número de Entradas de Diário de Bordo por Dia')
-            fig.update_layout(
-                width=graph_width,
-                height=500,
-                xaxis_title='Data',
-                yaxis_title='Número de Entradas',
-                xaxis=dict(
-                    tickmode='linear',
-                    tickvals=df_diario_count['data_hora'],
-                    tickformat="%Y-%m-%d",
-                    tickangle=-45
-                )         
-            )
-            fig.update_traces(
-                line_color="purple", 
-                line_width=3, 
-                line_dash="dash"
-                )
-
-            graph_html = pio.to_html(fig, full_html=False)
-
+            g_l = Ploty(df_diario_count, "data_hora", num_days, "count", 
+                        "Número de diarios de bordo preenchidos pela turma")
+            g_l.create_fig()
+            graph_html = g_l.get_ht()
 
             texto_entries = [entry.texto for entry in diariobordo_entries]
             texto_combined = ' '.join(texto_entries)
-            wordcloud = WordCloud(width=500, height=500, random_state=1, background_color="grey", colormap="Blues", collocations=False, stopwords=STOPWORDS).generate(texto_combined)
-
-
-            img_stream = BytesIO()
-            wordcloud.to_image().save(img_stream, format='PNG')
-            img_stream.seek(0)
-            img_base64 = base64.b64encode(img_stream.getvalue()).decode('utf-8')
-            img_data = f"data:image/png;base64,{img_base64}"
+            
+            w_c = Wordy(texto_combined)
+            w_c.create_wordcloud()
 
         except Exception as e:
             session.rollback()
@@ -201,7 +168,7 @@ def login_prof():
 
         finally:
             session.close()
-            return render_template("prof_area.html", user=user, nome=name, graph_html=graph_html, wordcloud_image_data=img_data)
+            return render_template("prof_area.html", user=user, nome=name, graph_html=graph_html, wordcloud_image_data=w_c.get_wc())
     else:
         mensagem = "Os dados do login estão incorretos"
         return render_template("prof_login.html", mensagem = mensagem)
@@ -214,11 +181,6 @@ def area_prof():
 
         diariobordo_entries = session.query(Diariodebordo).all()
 
-        if not diariobordo_entries:
-
-            return render_template("prof_area.html", nome=nome, graph_html="<p>Sem dados para exibir.</p>")
-
-
         data = {'data_hora': [entry.data_hora.date() for entry in diariobordo_entries]}
         df_diario = pd.DataFrame(data)
 
@@ -229,42 +191,20 @@ def area_prof():
         df_diario_count = df_diario.groupby('data_hora').size().reindex(all_dates, fill_value=0).reset_index(name='count')
         df_diario_count.columns = ['data_hora', 'count']
 
-  
+    
         num_days = len(df_diario_count)
-        graph_width = min(1000 + (num_days * 5), 2000)  
+        graph_width = min(1000 + (num_days * 5), 2000)
 
-        fig = px.line(df_diario_count, x='data_hora', y='count', title='Número de Entradas de Diário de Bordo por Dia')
-        fig.update_layout(
-            width=graph_width,
-            height=500,
-            xaxis_title='Data',
-            yaxis_title='Número de Entradas',
-            xaxis=dict(
-                tickmode='linear',
-                tickvals=df_diario_count['data_hora'],
-                tickformat="%Y-%m-%d",
-                tickangle=-45
-            )         
-        )
-        fig.update_traces(
-            line_color="purple", 
-            line_width=3, 
-            line_dash="dash"
-            )
-
-        graph_html = pio.to_html(fig, full_html=False)
-
+        g_l = Ploty(df_diario_count, "data_hora", num_days, "count", 
+                        "Número de diarios de bordo preenchidos pela turma")
+        g_l.create_fig()
+        graph_html = g_l.get_ht()
 
         texto_entries = [entry.texto for entry in diariobordo_entries]
         texto_combined = ' '.join(texto_entries)
-        wordcloud = WordCloud(width=500, height=500, random_state=1, background_color="grey", colormap="Blues", collocations=False, stopwords=STOPWORDS).generate(texto_combined)
-
-
-        img_stream = BytesIO()
-        wordcloud.to_image().save(img_stream, format='PNG')
-        img_stream.seek(0)
-        img_base64 = base64.b64encode(img_stream.getvalue()).decode('utf-8')
-        img_data = f"data:image/png;base64,{img_base64}"
+            
+        w_c = Wordy(texto_combined)
+        w_c.create_wordcloud()
 
     except Exception as e:
         session.rollback()
@@ -273,8 +213,8 @@ def area_prof():
 
     finally:
         session.close()
+        return render_template("prof_area.html", user=user, nome=nome, graph_html=graph_html, wordcloud_image_data=w_c.get_wc())
 
-    return render_template("prof_area.html", nome=nome, graph_html=graph_html, wordcloud_image_data=img_data)
 
 @app.route('/AcessoDoProfessor', methods=['POST'])
 def listar_alunos():
@@ -301,15 +241,13 @@ def diario_por_ra():
     if aluno:
         diariobordo_entries = session.query(Diariodebordo).filter_by(fk_aluno_id=aluno.id).all()
         all_texts = " ".join(entry.texto for entry in diariobordo_entries)
-        wordcloud = WordCloud(width=300, height=300, random_state=1, background_color="grey", colormap="viridis", collocations=False, stopwords=STOPWORDS).generate(all_texts)
+            
+        w_c_i = Wordy(all_texts,w=300,h=300,cm="plasma")
+        w_c_i.create_wordcloud()
         
-        # Convert WordCloud to HTML image
-        wordcloud_image = wordcloud.to_image()
-        buffered = io.BytesIO()
-        wordcloud_image.save(buffered, format="PNG")
-        wordcloud_image_data = base64.b64encode(buffered.getvalue()).decode()
 
-        return render_template("diarioindv.html", aluno=aluno, diariobordo_entries=diariobordo_entries, nome=nome,nomeal=nomeal, wordcloud_image_data=f"data:image/png;base64,{wordcloud_image_data}")
+        return render_template("diarioindv.html", aluno=aluno, diariobordo_entries=diariobordo_entries, nome=nome,
+                               nomeal=nomeal, wordcloud_image_data=w_c_i.get_wc())
     else:
         mensagem = "Aluno não encontrado"
         return render_template("lista_alunos.html", mensagem=mensagem)
