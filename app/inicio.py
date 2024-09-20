@@ -2,28 +2,14 @@ from flask import Flask,render_template,request, redirect, jsonify
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.automap import automap_base
-import pymysql
 import urllib.parse
-from aluno import Aluno
-from instrutor import Instrutor
-from diariobordo import Diariodebordo
-import random
-import pandas as pd
-import hashlib
-import getpass
 from datetime import datetime, timezone
-import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.io as pio
-from wordcloud import WordCloud, STOPWORDS
-import io
-from io import BytesIO
-import base64
+import pandas as pd
+from aluno import Aluno
+from instrutor import Instrutor, hash_password
+from diariobordo import Diariodebordo
 from graphy import Wordy, Ploty
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
 
 user = "root"
 password = urllib.parse.quote_plus("senai@123")
@@ -150,7 +136,7 @@ def login_prof():
             num_days = len(df_diario_count)
             graph_width = min(1000 + (num_days * 5), 2000)
 
-            g_l = Ploty(df_diario_count, "data_hora", num_days, "count", 
+            g_l = Ploty(df_diario_count, "data_hora", graph_width, "count", 
                         "Número de diarios de bordo preenchidos pela turma")
             g_l.create_fig()
             graph_html = g_l.get_ht()
@@ -195,7 +181,7 @@ def area_prof():
         num_days = len(df_diario_count)
         graph_width = min(1000 + (num_days * 5), 2000)
 
-        g_l = Ploty(df_diario_count, "data_hora", num_days, "count", 
+        g_l = Ploty(df_diario_count, "data_hora", graph_width, "count", 
                         "Número de diarios de bordo preenchidos pela turma")
         g_l.create_fig()
         graph_html = g_l.get_ht()
@@ -252,3 +238,5 @@ def diario_por_ra():
         mensagem = "Aluno não encontrado"
         return render_template("lista_alunos.html", mensagem=mensagem)
 app.run(debug=True)
+
+#Padrão Singleton(Static) 

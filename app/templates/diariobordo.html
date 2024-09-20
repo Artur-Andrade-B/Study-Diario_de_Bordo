@@ -18,15 +18,23 @@
             <button onclick="location.href='/'">Inicio</button>
         </div>
     </div>
-    <h2>Bem-vindo {{nome}}</h2>
-    <h2>O seu RA é: {{ra}}</h2>
-    <form action="{{ url_for('submit_diario') }}" method="POST">
-        <label for="texto">Compartilhe seus sentimentos sobre a aula:</label><br>
-        <textarea id="texto" name="texto" rows="10" cols="50" required></textarea><br>
-        <input type="submit" value="Enviar">
-        <input type="hidden" name="ra" value="{{ ra }}">
-        <input type="hidden" name="nome" value="{{ nome }}">
-    </form>
+    <div>
+        <h2>Bem-vindo {{nome}}</h2>
+        <h2>O seu RA é: {{ra}}</h2>
+        <form action="{{ url_for('submit_diario') }}" method="POST">
+            <label for="texto">Compartilhe seus sentimentos sobre a aula:</label><br>
+            <textarea id="texto" name="texto" rows="10" cols="50" required></textarea><br>
+            <input type="submit" value="Enviar">
+            <input type="hidden" name="ra" value="{{ ra }}">
+            <input type="hidden" name="nome" value="{{ nome }}">
+        </form>
+        {% if mensagem %}
+        <div class="mensagem">
+            {{mensagem}}
+        </div>
+        {% endif %}
+    
+    </div>
     <a href="/">Sair</a>
 </body>
 </html>
