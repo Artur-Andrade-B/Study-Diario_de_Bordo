@@ -1,36 +1,9 @@
 from flask import Flask,render_template,request, redirect, jsonify
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.automap import automap_base
-import urllib.parse
 from datetime import datetime, timezone
 import pandas as pd
 from models import Aluno, Instrutor, Diariodebordo, hash_password
 from graphy import Wordy, Ploty
-
-
-user = "root"
-password = urllib.parse.quote_plus("0413")
-
-host = "localhost"
-database = "projetodiario"
-
-connection_string = f"mysql+pymysql://{user}:{password}@{host}/{database}"
-
-engine = create_engine(connection_string)
-metadata = MetaData()
-metadata.reflect(engine)
-
-base = automap_base(metadata=metadata)
-base.prepare()
-
-Aluno = base.classes.aluno
-Instrutor = base.classes.instrutor
-Diariodebordo = base.classes.diariobordo 
-
-Session = sessionmaker(bind=engine)
-session = Session()
-
+from singleton import SingletonSession
 
 app = Flask(__name__)
 
@@ -44,6 +17,7 @@ def realizar_cadastro():
 
 @app.route("/cadastro", methods=["POST"])
 def register_aluno():
+    session = SingletonSession.get_instance()
     ra = request.form["ra"]
     if session.query(Aluno).filter_by(ra=ra).first():
         mensagem = "o ra informado já existe"
@@ -69,6 +43,7 @@ def register_aluno():
 
 @app.route("/login", methods=["POST"])
 def login_ra():
+    session = SingletonSession.get_instance()
     ra = request.form["ra"]
     
     if session.query(Aluno).filter_by(ra=ra).first():
@@ -90,6 +65,7 @@ def submit_diario():
     fk = aluno.id
 
     if aluno:
+        session = SingletonSession.get_instance()
         diario = Diariodebordo(texto=texto, data_hora=data_hora, fk_aluno_id=fk)
         try:
             session.add(diario)
@@ -111,6 +87,7 @@ def acess_prof():
 
 @app.route("/login_inst", methods=["POST"])
 def login_prof():
+    session = SingletonSession.get_instance()
     name = request.form["p_id"]
     user = session.query(Instrutor).filter_by(user_name=name).first()
     password_s = request.form["pass"]
@@ -159,6 +136,7 @@ def login_prof():
 
 @app.route("/AreaDoInstrutor", methods=["POST"])
 def area_prof():
+    session = SingletonSession.get_instance()
     nome = request.form.get('nome')
 
     try:
@@ -202,6 +180,7 @@ def area_prof():
 
 @app.route('/AcessoDoProfessor', methods=['POST'])
 def listar_alunos():
+    session = SingletonSession.get_instance()
     nome = request.form.get('nome')
 
     try:
@@ -217,6 +196,7 @@ def listar_alunos():
 
 @app.route("/diario_por_ra", methods=["POST"])
 def diario_por_ra():
+    session = SingletonSession.get_instance()
     nome = request.form.get('nome')
     ra = request.form.get('ra')
     aluno = session.query(Aluno).filter_by(ra=ra).first()
@@ -235,6 +215,6 @@ def diario_por_ra():
     else:
         mensagem = "Aluno não encontrado"
         return render_template("lista_alunos.html", mensagem=mensagem)
-app.run(debug=True)
+
 
 #Padrão Singleton(Static) 
