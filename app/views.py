@@ -5,14 +5,12 @@ from sqlalchemy.ext.automap import automap_base
 import urllib.parse
 from datetime import datetime, timezone
 import pandas as pd
-from aluno import Aluno
-from instrutor import Instrutor, hash_password
-from diariobordo import Diariodebordo
+from models import Aluno, Instrutor, Diariodebordo, hash_password
 from graphy import Wordy, Ploty
 
 
 user = "root"
-password = urllib.parse.quote_plus("senai@123")
+password = urllib.parse.quote_plus("0413")
 
 host = "localhost"
 database = "projetodiario"
