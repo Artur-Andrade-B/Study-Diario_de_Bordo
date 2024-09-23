@@ -6,7 +6,7 @@ from models import Aluno, Instrutor, Diariodebordo
 import urllib.parse
 
 user = "root"
-password = urllib.parse.quote_plus("0413")
+password = urllib.parse.quote_plus("senai@123")
 
 host = "localhost"
 database = "projetodiario"

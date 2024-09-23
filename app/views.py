@@ -1,6 +1,5 @@
 from flask import Flask,render_template,request, redirect, jsonify
 from datetime import datetime, timezone
-import pandas as pd
 from models import *
 from graphy import Wordy, Ploty
 from singleton import SingletonSession
@@ -196,6 +195,3 @@ def diario_por_ra():
     else:
         mensagem = "Aluno não encontrado"
         return render_template("lista_alunos.html", mensagem=mensagem)
-
-
-#Padrão Singleton(Static) 
