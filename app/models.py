@@ -1,15 +1,34 @@
 import hashlib
 import getpass
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy.orm import relationship
+from base_model import BaseModel
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-class Instrutor:
+class Instrutor(BaseModel):
+    __tablename__ = 'instrutor'
+
+    id = Column(Integer, primary_key=True)  # Ensure this column is defined
+    user_name = Column(String(100), unique=True, nullable=False)
+    password_hash = Column(String(256), nullable=False)
+
     def __init__(self, user_name, password_hash):
         self.user_name = user_name
         self.password_hash = password_hash
     
-class Aluno:
+class Aluno(BaseModel):
+    __tablename__ = 'aluno'
+
+    id = Column(Integer, primary_key=True)  # Primary key
+    ra = Column(String(8), unique=True, nullable=False)
+    nome = Column(String(50), nullable=True)  # Adjusting to match your SQL
+    tempo_de_estudo = Column(Integer, nullable=False)  # Adjusted as not nullable
+    renda_media_salarial = Column(Integer, nullable=True)
+
+    diários = relationship('Diariodebordo', back_populates='aluno')
+
     def __init__(self, ra, nome, tempo_de_estudo, renda_media_salarial, id):
         self.ra = ra
         self.nome = nome
@@ -17,7 +36,14 @@ class Aluno:
         self.renda_media_salarial = renda_media_salarial
         self.id = id
 
-class Diariodebordo:
+class Diariodebordo(BaseModel):
+    id = Column(Integer, primary_key=True)
+    texto = Column(Text, nullable=False)
+    data_hora = Column(DateTime, nullable=False)
+    fk_aluno_id = Column(Integer, ForeignKey('aluno.id'))
+
+    aluno = relationship('Aluno', back_populates='diários')
+    __tablename__ = 'diariobordo'
     def __init__(self, texto, data_hora, fk_aluno_id):
         self.texto = texto
         self.data_hora = data_hora

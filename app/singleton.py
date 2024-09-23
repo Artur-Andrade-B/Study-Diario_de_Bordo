@@ -15,6 +15,7 @@ class SingletonSession:
             connection_string = f"mysql+pymysql://{user}:{password}@{host}/{database}"
 
             engine = create_engine(connection_string)
+            
             Session = sessionmaker(bind=engine)
             cls._instance = Session()  # Create a single session instance
         return cls._instance

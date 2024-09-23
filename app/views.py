@@ -1,9 +1,14 @@
 from flask import Flask,render_template,request, redirect, jsonify
 from datetime import datetime, timezone
 import pandas as pd
-from models import Aluno, Instrutor, Diariodebordo, hash_password
+from models import *
 from graphy import Wordy, Ploty
 from singleton import SingletonSession
+from reposirories import AlunoRepository, InstrutorRepository, DiariodebordoRepository
+session = SingletonSession.get_instance()
+aluno_repository = AlunoRepository(session)
+diario_repository = DiariodebordoRepository(session)
+instrutor_repository = InstrutorRepository(session)
 
 app = Flask(__name__)
 
@@ -19,7 +24,7 @@ def realizar_cadastro():
 def register_aluno():
     session = SingletonSession.get_instance()
     ra = request.form["ra"]
-    if session.query(Aluno).filter_by(ra=ra).first():
+    if aluno_repository.get_by_ra(ra):
         mensagem = "o ra informado já existe"
         return render_template("index.html", mensagem = mensagem)
 
@@ -27,10 +32,11 @@ def register_aluno():
         nome = request.form["nome"]
         rms = float(request.form["renda_media_salarial"])
         ts = int(request.form["tempo_de_estudo"])
-        aluno = Aluno(ra = ra, nome = nome, tempo_de_estudo = ts, renda_media_salarial = rms)
+        lid = aluno_repository.get_last_id()
+        aluno = Aluno(id = lid, ra = ra, nome = nome, tempo_de_estudo = ts, renda_media_salarial = rms)
 
         try:
-            session.add(aluno)
+            aluno_repository.add(aluno)
             session.commit()
         except:
             session.rollback()
@@ -43,12 +49,10 @@ def register_aluno():
 
 @app.route("/login", methods=["POST"])
 def login_ra():
-    session = SingletonSession.get_instance()
     ra = request.form["ra"]
     
-    if session.query(Aluno).filter_by(ra=ra).first():
-        usuario = session.query(Aluno).filter_by(ra=ra).first()
-        nome = usuario.nome
+    if aluno_repository.get_by_ra(ra):
+        nome = aluno_repository.get_nome_by_ra(ra)
         return render_template("diariobordo.html", ra = ra, nome = nome)
        
     else:
@@ -57,18 +61,17 @@ def login_ra():
 
 @app.route("/submit_diario", methods=["POST"])
 def submit_diario():
+    session = SingletonSession.get_instance()
     ra = request.form["ra"]
     nome = request.form["nome"]
     texto = request.form["texto"]
     data_hora = datetime.now(timezone.utc)
-    aluno = session.query(Aluno).filter_by(ra=ra).first()
-    fk = aluno.id
+    fk = aluno_repository.id
 
-    if aluno:
-        session = SingletonSession.get_instance()
+    if fk:
         diario = Diariodebordo(texto=texto, data_hora=data_hora, fk_aluno_id=fk)
         try:
-            session.add(diario)
+            diario_repository.add(diario)
             session.commit()
             mensagem = "Texto enviado com sucesso!"
         except:
@@ -88,39 +91,29 @@ def acess_prof():
 @app.route("/login_inst", methods=["POST"])
 def login_prof():
     session = SingletonSession.get_instance()
-    name = request.form["p_id"]
-    user = session.query(Instrutor).filter_by(user_name=name).first()
-    password_s = request.form["pass"]
-    password_h = hash_password(password_s)
-    if user.user_name == request.form["p_id"] and user.password_hash == password_h:
+
+    username = request.form["p_id"]
+    password = request.form["pass"]
+
+    if instrutor_repository.verify_password(username, password):
         try:
+            
+            df_diario_count = diario_repository.get_diario_dataframe()
 
-            diariobordo_entries = session.query(Diariodebordo).all()
-
-            data = {'data_hora': [entry.data_hora.date() for entry in diariobordo_entries]}
-            df_diario = pd.DataFrame(data)
-
-            start_date = df_diario['data_hora'].min()
-            end_date = datetime.now().date()  
-            all_dates = pd.date_range(start=start_date, end=end_date, freq='D')
-
-            df_diario_count = df_diario.groupby('data_hora').size().reindex(all_dates, fill_value=0).reset_index(name='count')
-            df_diario_count.columns = ['data_hora', 'count']
-
-    
             num_days = len(df_diario_count)
             graph_width = min(1000 + (num_days * 5), 2000)
 
-            g_l = Ploty(df_diario_count, "data_hora", graph_width, "count", 
+            g_l = Ploty(df_diario_count, "data_hora", graph_width, "count",
                         "Número de diarios de bordo preenchidos pela turma")
             g_l.create_fig()
             graph_html = g_l.get_ht()
 
-            texto_entries = [entry.texto for entry in diariobordo_entries]
-            texto_combined = ' '.join(texto_entries)
-            
+            texto_combined = diario_repository.get_combined_text_entries()
+
             w_c = Wordy(texto_combined)
             w_c.create_wordcloud()
+            wc = w_c.get_wc()
+            
 
         except Exception as e:
             session.rollback()
@@ -129,10 +122,10 @@ def login_prof():
 
         finally:
             session.close()
-            return render_template("prof_area.html", user=user, nome=name, graph_html=graph_html, wordcloud_image_data=w_c.get_wc())
+            return render_template("prof_area.html", user=username, nome=username, graph_html=graph_html, wordcloud_image_data=wc)
     else:
         mensagem = "Os dados do login estão incorretos"
-        return render_template("prof_login.html", mensagem = mensagem)
+        return render_template("prof_login.html", mensagem=mensagem)
 
 @app.route("/AreaDoInstrutor", methods=["POST"])
 def area_prof():
@@ -141,33 +134,22 @@ def area_prof():
 
     try:
 
-        diariobordo_entries = session.query(Diariodebordo).all()
+        df_diario_count = diario_repository.get_diario_dataframe()
 
-        data = {'data_hora': [entry.data_hora.date() for entry in diariobordo_entries]}
-        df_diario = pd.DataFrame(data)
-
-        start_date = df_diario['data_hora'].min()
-        end_date = datetime.now().date()  
-        all_dates = pd.date_range(start=start_date, end=end_date, freq='D')
-
-        df_diario_count = df_diario.groupby('data_hora').size().reindex(all_dates, fill_value=0).reset_index(name='count')
-        df_diario_count.columns = ['data_hora', 'count']
-
-    
         num_days = len(df_diario_count)
         graph_width = min(1000 + (num_days * 5), 2000)
 
-        g_l = Ploty(df_diario_count, "data_hora", graph_width, "count", 
-                        "Número de diarios de bordo preenchidos pela turma")
+        g_l = Ploty(df_diario_count, "data_hora", graph_width, "count",
+                    "Número de diarios de bordo preenchidos pela turma")
         g_l.create_fig()
         graph_html = g_l.get_ht()
 
-        texto_entries = [entry.texto for entry in diariobordo_entries]
-        texto_combined = ' '.join(texto_entries)
-            
+        texto_combined = diario_repository.get_combined_text_entries()
+
         w_c = Wordy(texto_combined)
         w_c.create_wordcloud()
-
+        wc = w_c.get_wc()
+            
     except Exception as e:
         session.rollback()
         print(f"Error: {e}")
@@ -175,7 +157,7 @@ def area_prof():
 
     finally:
         session.close()
-        return render_template("prof_area.html", user=user, nome=nome, graph_html=graph_html, wordcloud_image_data=w_c.get_wc())
+        return render_template("prof_area.html", nome=nome, graph_html=graph_html, wordcloud_image_data=wc)
 
 
 @app.route('/AcessoDoProfessor', methods=['POST'])
@@ -184,7 +166,7 @@ def listar_alunos():
     nome = request.form.get('nome')
 
     try:
-        alunos = session.query(Aluno).all()
+        alunos = aluno_repository.all()
     except:
         session.rollback()
         mensagem = "Erro ao tentar recuperar a lista de alunos."
@@ -196,15 +178,14 @@ def listar_alunos():
 
 @app.route("/diario_por_ra", methods=["POST"])
 def diario_por_ra():
-    session = SingletonSession.get_instance()
     nome = request.form.get('nome')
     ra = request.form.get('ra')
-    aluno = session.query(Aluno).filter_by(ra=ra).first()
+    aluno = aluno_repository.get_by_ra(ra)
     nomeal = aluno.nome
 
     if aluno:
-        diariobordo_entries = session.query(Diariodebordo).filter_by(fk_aluno_id=aluno.id).all()
-        all_texts = " ".join(entry.texto for entry in diariobordo_entries)
+        diariobordo_entries = diario_repository.get_text_entries_by_fk_aluno(aluno.id)
+        all_texts = diario_repository.get_combined_text_entries_by_fk_aluno(aluno.id)
             
         w_c_i = Wordy(all_texts,w=300,h=300,cm="plasma")
         w_c_i.create_wordcloud()
