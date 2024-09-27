@@ -1,3 +1,4 @@
+from templates import *
 from flask import Flask,render_template,request, redirect, jsonify
 from datetime import datetime, timezone
 from models import *

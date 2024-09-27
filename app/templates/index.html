@@ -12,28 +12,35 @@
             <button onclick="location.href='{{ url_for('realizar_cadastro') }}'">Cadastro</button>
             <button onclick="location.href='{{ url_for('acess_prof') }}'">Acesso do Instrutor</button>
             <button onclick="showPopup('Por favor preencha o RA e clique em enviar')">Diário de Bordo</button>
-
         </div>
         <div class="right">
             <button class="active" onclick="location.href='/'">Inicio</button>
         </div>
     </div>
-    <h2>Login Page</h2>
-    <form action="/login" method="POST">
-        <label for="ra"> RA: </label>
-        <input type="text" id="ra" name="ra" maxlength="8" required>
-        <input type="submit" id="botaoen" value="Enviar">
-        {% if mensagem %}
-        <div class="mensagem">
-            {{mensagem}}
+    <h2>Acesso do Aluno</h2>   
+    <div class="login-container">
+
+        <div class="icon-placeholder">
+            <img src="{{ url_for('static', filename='Placeholder_icon.png') }}" alt="Loading..." class="icon">
         </div>
-        {% endif %}
-        {% if msgbanco %}
-        <div>
-            {{msgbanco}}
-        </div>
-        {% endif %}
-    </form>
+        <h2 style="text-align: center;">RA</h2>
+        <form action="/login" method="POST">
+
+            <input type="text" id="ra" name="ra" maxlength="9" required>
+            <input type="submit" id="botaoen" value="Enviar">
+            {% if mensagem %}
+            <div class="mensagem">
+                {{mensagem}}
+            </div>
+            {% endif %}
+            {% if msgbanco %}
+            <div>
+                {{msgbanco}}
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
     <div id="popup" class="popup"></div>
     <script>
         function showPopup(message) {

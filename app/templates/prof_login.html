@@ -19,20 +19,23 @@
         </div>
     </div>
     <h2>Login do Instrutor</h2>
-    <form action="/login_inst" method="POST">
-        <label for="p_id"> Id do Professor: </label>
-        <input type="text" id="p_id" name="p_id" maxlength="10" required>
-        <label for="pass"> Senha: </label>
-        <input type="password" id="p_s" name="pass" required>
-        <input type="submit" id="botaoen"value="Enviar">
-
-        {% if mensagem %}
-        <div class="mensagem">
-            {{mensagem}}
+    <div class="login-container">
+        <div class="icon-placeholder">
+            <img src="{{ url_for('static', filename='Placeholder_icon.png') }}" alt="Loading..." class="icon">
         </div>
-        {% endif %}
+        <h2 style="text-align: center;">Login</h2>
         
-    </form>
+        <form action="/login_inst" method="POST">
+            <label for="p_id">Usuario:</label>
+            <input type="text" id="p_id" name="p_id" maxlength="10" required>
+            
+            <label for="pass">Senha:</label>
+            <input type="password" id="p_s" name="pass" required>
+            
+            <input type="submit" id="botaoen" value="Entrar">
+        </form>
+    </div>
+    
     <div id="popup" class="popup"></div>
     <script>
         function showPopup(message) {

@@ -26,11 +26,15 @@
     <h1>Lista de Alunos</h1>
     <hr>
     <div class="search-container">
-        <form action="{{ url_for('diario_por_ra', nome=nome )}}" method="POST">
+        <form action="{{ url_for('diario_por_ra', nome=nome )}}" method="POST" class="search-form">
             <label for="ra">Buscar Diário por RA:</label>
-            <input type="text" id="ra" name="ra" required>
-            <input type="hidden" id="nome" name="nome">
-            <button type="submit">Buscar</button>
+            <div class="input-button-container">
+                <input type="text" id="ra" name="ra" required>
+                <input type="hidden" id="nome" name="nome">
+                <button type="submit" class="search-button">
+                    ➔ <!-- You can replace this with an icon if needed -->
+                </button>
+            </div>
         </form>
     </div>
     <div id="table"></div>

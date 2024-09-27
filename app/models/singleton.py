@@ -9,7 +9,7 @@ class SingletonSession:
     def get_instance(cls):
         if cls._instance is None:
             user = "root"
-            password = urllib.parse.quote_plus("senai@123")
+            password = urllib.parse.quote_plus("0413")
             host = "localhost"
             database = "projetodiario"
             connection_string = f"mysql+pymysql://{user}:{password}@{host}/{database}"
