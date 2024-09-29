@@ -15,6 +15,10 @@
                 <button type="submit">Acesse a lista de alunos</button>
             </form>
             <button onclick="showPopup('Por favor acesse a lista de alunos primeiro')">Diário de Bordo</button>
+            <form action="{{ url_for('listar_notas', nome=nome)}}" method="POST">
+                <input type="hidden" name="nome" value="{{ nome }}">
+                <button type="submit">Acesse a lista de notas</button>
+            </form>
             
         </div>
         <div class="right">

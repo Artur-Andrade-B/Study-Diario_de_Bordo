@@ -15,19 +15,19 @@
                 <input type="hidden" name="nome" value="{{ nome }}">
                 <button type="submit">Voltar para a página do instrutor</button>
             </form>
-            <button class="active">Acesse a lista de alunos</button>
-            <button onclick="showPopup('Por favor preencha o campo de busca e clique em buscar')">Diário de Bordo</button>
-            <form action="{{ url_for('listar_notas', nome=nome)}}" method="POST">
+            <form action="{{ url_for('listar_alunos') }}" method="POST">
                 <input type="hidden" name="nome" value="{{ nome }}">
-                <button type="submit">Acesse a lista de notas</button>
+                <button type="submit">Acesse a lista de alunos</button>
             </form>
+            <button onclick="showPopup('Por favor preencha o campo de busca e clique em buscar')">Diário de Bordo</button>
+            <button class="active">Acesse a lista de notas</button>
 
         </div>
         <div class="right">
             <button onclick="location.href='/'">Logout</button>
         </div>
     </div>
-    <h1>Lista de Alunos</h1>
+    <h1>Lista de Notas por aluno</h1>
     <hr>
     <div class="search-container">
         <form action="{{ url_for('diario_por_ra', nome=nome )}}" method="POST" class="search-form">
@@ -53,16 +53,22 @@
           columns: [
             { id: 'ra', name: 'RA' },
             { id: 'nome', name: 'Nome' },
-            { id: 'tempo_de_estudo', name: 'Tempo de Estudo', sort: false },
-            { id: 'renda_media_salarial', name: 'Renda Media Salarial', sort: false },
+            { id: 'nota1', name: 'Nota 1' },
+            { id: 'nota2', name: 'Nota 2' },
+            { id: 'nota3', name: 'Nota 3' },
+            { id: 'nota4', name: 'Nota 4' },
           ],
           data: [
             {% for aluno in alunos %}
               [
                 '{{ aluno.ra }}',
                 '{{ aluno.nome }}',
-                '{{ aluno.tempo_de_estudo }}',
-                '{{ aluno.renda_media_salarial }}'
+                {% set notas = notas_data[aluno.id] %}
+                '{{ notas[0].nota1 if notas | length > 0 else "" }}',
+                '{{ notas[0].nota2 if notas | length > 0 else "" }}',
+                '{{ notas[0].nota3 if notas | length > 0 else "" }}',
+                '{{ notas[0].nota4 if notas | length > 0 else "" }}',
+                
               ],
             {% endfor %}
           ],

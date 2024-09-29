@@ -1,5 +1,5 @@
 from base_repository import BaseRepository
-from models import Aluno, Instrutor, Diariodebordo, hash_password
+from models import Aluno, Instrutor, Diariodebordo, Avaliacao, hash_password
 import pandas as pd
 from datetime import datetime
 
@@ -131,3 +131,36 @@ class DiariodebordoRepository(BaseRepository):
         texto_entries = [entry.texto for entry in text_entries]
         texto_combined = ' '.join(texto_entries)
         return texto_combined
+
+class AvaliacaoRepository(BaseRepository):
+    model = Avaliacao
+
+    def add(self, obj):
+        self.session.add(obj)
+        self.session.commit()
+
+    def get(self, obj_id):
+        return self.session.query(self.model).get(obj_id)
+
+    def update(self, obj):
+        self.session.merge(obj)  # Use merge for updates
+        self.session.commit()
+
+    def delete(self, obj_id):
+        obj = self.get(obj_id)
+        if obj:
+            self.session.delete(obj)
+            self.session.commit()
+
+    def all(self):
+        return self.session.query(self.model).all()
+
+    
+    def get_all_entries(self):
+        return self.session.query(Avaliacao).all()
+    
+    
+    def get_notas_by_ra(self, aluno_id):
+        return self.session.query(self.model).filter_by(fk_aluno_id=aluno_id).all()
+
+    
