@@ -10,7 +10,7 @@ aluno_repository = AlunoRepository(session)
 diario_repository = DiariodebordoRepository(session)
 instrutor_repository = InstrutorRepository(session)
 avaliacao_repository = AvaliacaoRepository(session)
-
+import logging
 
 app = Flask(__name__)
 
@@ -207,6 +207,7 @@ def diario_por_ra():
         return render_template("lista_alunos.html", mensagem=mensagem, alunos=alunos)
     finally:
         session.close()
+
 @app.route("/notas",methods=["POST","GET"])
 def listar_notas():
     nome = request.form.get('nome')
@@ -222,3 +223,45 @@ def listar_notas():
         session.close()
 
     return render_template('prof_notas.html', alunos=alunos, nome=nome,notas_data=notas_data)
+
+
+@app.route('/update_notas', methods=['POST'])
+def update_notas():
+    data = request.get_json()
+    logging.debug(f"Incoming data: {data}")
+
+    if 'ra' not in data:
+        return jsonify({'error': 'RA is required'}), 400
+
+    ra = data['ra']
+    grades_to_update = {key: value for key, value in data.items() if key != 'ra'}
+
+    session: Session = SingletonSession.get_instance()
+
+    try:
+        aluno = session.query(Aluno).filter_by(ra=ra).first()
+        if not aluno:
+            return jsonify({'error': 'Student not found'}), 404
+        
+        avaliacao = session.query(Avaliacao).filter_by(fk_aluno_id=aluno.id).first()
+        if not avaliacao:
+            return jsonify({'error': 'Evaluation not found'}), 404
+
+        for key, value in grades_to_update.items():
+            if hasattr(avaliacao, key):
+                value = int(value)  # Convert to integer
+                if 0 <= value <= 25:  # Validate grade range
+                    setattr(avaliacao, key, value)
+                else:
+                    return jsonify({'error': f'{key} must be between 0 and 25'}), 400
+
+        session.commit()
+        return jsonify({'message': 'Grades updated successfully'}), 200
+
+    except Exception as e:
+        session.rollback()
+        logging.error(f"Error updating grades: {str(e)}")  # Log the error
+        return jsonify({'error': str(e)}), 500
+
+
+

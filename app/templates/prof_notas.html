@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Alunos</title>
     <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="tabs">
@@ -21,7 +20,6 @@
             </form>
             <button onclick="showPopup('Por favor preencha o campo de busca e clique em buscar')">Diário de Bordo</button>
             <button class="active">Acesse a lista de notas</button>
-
         </div>
         <div class="right">
             <button onclick="location.href='/'">Logout</button>
@@ -35,58 +33,118 @@
             <div class="input-button-container">
                 <input type="text" id="ra" name="ra" required>
                 <input type="hidden" id="nome" name="nome">
-                <button type="submit" class="search-button">
-                    ➔ <!-- You can replace this with an icon if needed -->
-                </button>
+                <button type="submit" class="search-button">➔</button>
             </div>
             {% if mensagem %}
-            <div>
-                {{mensagem}}
-            </div>
+            <div>{{mensagem}}</div>
             {% endif %}
         </form>
     </div>
     <div id="table"></div>
+    
     <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
     <script>
-        new gridjs.Grid({
-          columns: [
-            { id: 'ra', name: 'RA' },
-            { id: 'nome', name: 'Nome' },
-            { id: 'nota1', name: 'Nota 1' },
-            { id: 'nota2', name: 'Nota 2' },
-            { id: 'nota3', name: 'Nota 3' },
-            { id: 'nota4', name: 'Nota 4' },
-          ],
-          data: [
-            {% for aluno in alunos %}
-              [
-                '{{ aluno.ra }}',
-                '{{ aluno.nome }}',
-                {% set notas = notas_data[aluno.id] %}
-                '{{ notas[0].nota1 if notas | length > 0 else "" }}',
-                '{{ notas[0].nota2 if notas | length > 0 else "" }}',
-                '{{ notas[0].nota3 if notas | length > 0 else "" }}',
-                '{{ notas[0].nota4 if notas | length > 0 else "" }}',
-                
-              ],
-            {% endfor %}
-          ],
-          search: true,
-          sort: true,
-          pagination: true,
-        }).render(document.getElementById('table'));
-    </script>
-        <div id="popup" class="popup"></div>
-        <script>
-            function showPopup(message) {
-                var popup = document.getElementById('popup');
-                popup.textContent = message;
-                popup.classList.add('active');
-                setTimeout(function() {
-                    popup.classList.remove('active');
-                }, 3000);
+        const tableDiv = document.getElementById('table');
+
+        // Editable cell attributes
+        const editableCellAttributes = (data, row, col) => {
+            if (row) {
+                return {
+                    contentEditable: 'true',
+                    'data-element-id': data[0], // Assuming the first column is RA
+                    'data-column-id': col.id, // Correctly fetch column ID
+                };
+            } else {
+                return {};
             }
-        </script>
+        };
+
+        new gridjs.Grid({
+            columns: [
+                { id: 'ra', name: 'RA' },
+                { id: 'nome', name: 'Nome' },
+                { id: 'nota1', name: 'Nota 1', attributes: editableCellAttributes },
+                { id: 'nota2', name: 'Nota 2', attributes: editableCellAttributes },
+                { id: 'nota3', name: 'Nota 3', attributes: editableCellAttributes },
+                { id: 'nota4', name: 'Nota 4', attributes: editableCellAttributes },
+            ],
+            data: [
+                {% for aluno in alunos %}
+                [
+                    '{{ aluno.ra }}',
+                    '{{ aluno.nome }}',
+                    {% set notas = notas_data[aluno.id] %}
+                    '{{ notas[0].nota1 if notas | length > 0 else "" }}',
+                    '{{ notas[0].nota2 if notas | length > 0 else "" }}',
+                    '{{ notas[0].nota3 if notas | length > 0 else "" }}',
+                    '{{ notas[0].nota4 if notas | length > 0 else "" }}',
+                ],
+                {% endfor %}
+            ],
+            search: true,
+            sort: true,
+            pagination: true,
+        }).render(tableDiv);
+
+        let savedValue;
+
+        tableDiv.addEventListener('focusin', ev => {
+            if (ev.target.tagName === 'TD') {
+                savedValue = ev.target.textContent;
+            }
+        });
+
+        tableDiv.addEventListener('focusout', ev => {
+            if (ev.target.tagName === 'TD' && ev.target.contentEditable === 'true') {
+                const ra = ev.target.dataset.elementId; // Get RA from data attribute
+                const columnId = ev.target.dataset.columnId; // Get column ID
+                const newValue = ev.target.textContent; // Get the new value
+
+                console.log('Updating:', { ra, [columnId]: newValue }); // Log the data being sent
+
+                // Send the update for the specific grade
+                fetch('/update_notas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ra: ra,
+                        [columnId]: newValue
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showPopup(data.message);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showPopup('Erro ao salvar a nota.');
+                });
+            }
+        });
+
+        function showPopup(message) {
+            const popup = document.createElement('div');
+            popup.textContent = message;
+            popup.className = 'popup';
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 3000);
+        }
+    </script>
+    <style>
+        .popup {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .popup.active {
+            display: block;
+        }
+    </style>
 </body>
 </html>
