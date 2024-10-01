@@ -225,18 +225,22 @@ def listar_notas():
     return render_template('prof_notas.html', alunos=alunos, nome=nome,notas_data=notas_data)
 
 
-@app.route('/update_notas', methods=['POST'])
+@app.route('/update_notas', methods=['POST', "GET"])
 def update_notas():
     data = request.get_json()
     logging.debug(f"Incoming data: {data}")
-
+    print(data)
     if 'ra' not in data:
         return jsonify({'error': 'RA is required'}), 400
 
     ra = data['ra']
+    ra = int(ra)
     grades_to_update = {key: value for key, value in data.items() if key != 'ra'}
+    k = [*grades_to_update]
+    key = k[0]
+    val = grades_to_update.get(key)
+    val = int(val)
 
-    session: Session = SingletonSession.get_instance()
 
     try:
         aluno = session.query(Aluno).filter_by(ra=ra).first()
@@ -245,23 +249,43 @@ def update_notas():
         
         avaliacao = session.query(Avaliacao).filter_by(fk_aluno_id=aluno.id).first()
         if not avaliacao:
-            return jsonify({'error': 'Evaluation not found'}), 404
+            match key:
+                case "nota1":
+                    aval = Avaliacao(nota1=val, fk_aluno_id=aluno.id)
+                case "nota2":
+                    aval = Avaliacao(nota2=val, fk_aluno_id=aluno.id)
+                case "nota3":
+                    aval = Avaliacao(nota3=val, fk_aluno_id=aluno.id)
+                case "nota4":
+                    aval = Avaliacao(nota4=val, fk_aluno_id=aluno.id)                                                
+            
+            avaliacao_repository.add(aval)
+            session.commit()
+        else:
+            c_aval = avaliacao_repository.get_notas_by_ra(aluno.id)
+            match key:
+                case "nota1":
+                    print(c_aval)
+                    aval = Avaliacao(nota1=val, nota2=c_aval.nota2,
+                                     nota3=c_aval.nota3, nota4=c_aval.nota4,
+                                     fk_aluno_id=aluno.id)
+                case "nota2":
+                    aval = Avaliacao(nota2=val, fk_aluno_id=aluno.id)
+                case "nota3":
+                    aval = Avaliacao(nota3=val, fk_aluno_id=aluno.id)
+                case "nota4":
+                    aval = Avaliacao(nota4=val, fk_aluno_id=aluno.id) 
+            return print(c_aval)
 
-        for key, value in grades_to_update.items():
-            if hasattr(avaliacao, key):
-                value = int(value)  # Convert to integer
-                if 0 <= value <= 25:  # Validate grade range
-                    setattr(avaliacao, key, value)
-                else:
-                    return jsonify({'error': f'{key} must be between 0 and 25'}), 400
-
-        session.commit()
-        return jsonify({'message': 'Grades updated successfully'}), 200
+#           return jsonify({'message': 'Grades updated successfully'}), 200
 
     except Exception as e:
         session.rollback()
         logging.error(f"Error updating grades: {str(e)}")  # Log the error
         return jsonify({'error': str(e)}), 500
-
+    
+    finally:
+        session.close
+    return jsonify({'message': 'Grades updated successfully'}), 250
 
 

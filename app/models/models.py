@@ -60,7 +60,7 @@ class Avaliacao(BaseModel):
 
     aluno = relationship('Aluno', back_populates='notas')
     __tablename__ = 'avaliacao'
-    def __init__(self,nota1,nota2,nota3,nota4,fk_aluno_id):
+    def __init__(self,nota1=0,nota2=0,nota3=0,nota4=0,fk_aluno_id=0):
         self.nota1 = nota1
         self.nota2 = nota2
         self.nota3 = nota3

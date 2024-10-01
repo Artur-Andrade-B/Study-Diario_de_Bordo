@@ -1,6 +1,6 @@
 import sys
-sys.path.insert(0,"c:\\Users\\artur\\Documents\\Python_Projects\\Study-Diario_de_Bordo\\app\\models")
-sys.path.insert(0,"c:\\Users\\artur\\Documents\\Python_Projects\\Study-Diario_de_Bordo\\app\\templates")
+sys.path.insert(0,"c:\\Users\\ead\\Documents\\Artur\\Study-Diario_de_Bordo\\app\\models")
+sys.path.insert(0,"c:\\Users\\ead\\Documents\\Artur\\Study-Diario_de_Bordo\\app\\templates")
 
 
 from flask import Flask,render_template,request, redirect, jsonify
@@ -11,7 +11,7 @@ from models import Aluno, Instrutor, Diariodebordo
 import urllib.parse
 
 user = "root"
-password = urllib.parse.quote_plus("0413")
+password = urllib.parse.quote_plus("senai@123")
 
 host = "localhost"
 database = "projetodiario"

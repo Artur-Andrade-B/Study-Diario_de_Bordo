@@ -96,7 +96,6 @@
 
         tableDiv.addEventListener('focusout', ev => {
             if (ev.target.tagName === 'TD' && ev.target.contentEditable === 'true') {
-                const ra = ev.target.dataset.elementId; // Get RA from data attribute
                 const columnId = ev.target.dataset.columnId; // Get column ID
                 const newValue = ev.target.textContent; // Get the new value
 
@@ -107,7 +106,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        ra: ra,
+                        ra: ev.target.parentElement.cells[0].textContent,
                         [columnId]: newValue
                     }),
                 })
