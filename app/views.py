@@ -24,7 +24,6 @@ def realizar_cadastro():
 
 @app.route("/cadastro", methods=["POST"])
 def register_aluno():
-    session = SingletonSession.get_instance()
     ra = request.form["ra"]
     if aluno_repository.get_by_ra(ra):
         msgbanco = "o ra informado já existe"
@@ -63,7 +62,6 @@ def login_ra():
 
 @app.route("/submit_diario", methods=["POST"])
 def submit_diario():
-    session = SingletonSession.get_instance()
     ra = request.form["ra"]
     nome = request.form["nome"]
     texto = request.form["texto"]
@@ -92,7 +90,6 @@ def acess_prof():
 
 @app.route("/login_inst", methods=["POST"])
 def login_prof():
-    session = SingletonSession.get_instance()
 
     username = request.form["p_id"]
     password = request.form["pass"]
@@ -131,7 +128,6 @@ def login_prof():
 
 @app.route("/AreaDoInstrutor", methods=["POST"])
 def area_prof():
-    session = SingletonSession.get_instance()
     nome = request.form.get('nome')
 
     try:
@@ -164,7 +160,6 @@ def area_prof():
 
 @app.route('/AcessoDoProfessor', methods=['POST'])
 def listar_alunos():
-    session = SingletonSession.get_instance()
     nome = request.form.get('nome')
 
     try:

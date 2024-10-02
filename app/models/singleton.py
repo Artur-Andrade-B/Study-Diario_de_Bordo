@@ -3,6 +3,10 @@ from sqlalchemy import create_engine
 import urllib.parse
 
 class SingletonSession:
+    r"""Classe singleton para iniciar a seção, só presisa ser instanciado uma vez no codigo para continuar utilizando a seção.
+        .. code-block:: python
+            session = SingletonSession.get_instance()
+"""
     _instance = None
 
     @classmethod
