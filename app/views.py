@@ -248,6 +248,7 @@ def update_notas():
             return jsonify({'error': 'Student not found'}), 404
         
         avaliacao = session.query(Avaliacao).filter_by(fk_aluno_id=aluno.id).first()
+
         if not avaliacao:
             match key:
                 case "nota1":
@@ -262,10 +263,9 @@ def update_notas():
             avaliacao_repository.add(aval)
             session.commit()
         else:
-            c_aval = avaliacao_repository.get_notas_by_ra(aluno.id)
+            c_aval = avaliacao_repository.get_by_ra(aluno.id)
             match key:
                 case "nota1":
-                    print(c_aval)
                     aval = Avaliacao(nota1=val, nota2=c_aval.nota2,
                                      nota3=c_aval.nota3, nota4=c_aval.nota4,
                                      fk_aluno_id=aluno.id)
@@ -275,9 +275,9 @@ def update_notas():
                     aval = Avaliacao(nota3=val, fk_aluno_id=aluno.id)
                 case "nota4":
                     aval = Avaliacao(nota4=val, fk_aluno_id=aluno.id) 
-            return print(c_aval)
-
-#           return jsonify({'message': 'Grades updated successfully'}), 200
+            avaliacao_repository.update(aval)
+            session.commit()
+            return jsonify({'message': 'Grades updated successfully'}), 200
 
     except Exception as e:
         session.rollback()

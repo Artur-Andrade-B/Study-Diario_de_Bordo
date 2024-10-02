@@ -155,6 +155,8 @@ class AvaliacaoRepository(BaseRepository):
     def all(self):
         return self.session.query(self.model).all()
 
+    def get_by_ra(self,aluno_id):
+        return self.session.query(self.model).filter_by(fk_aluno_id=aluno_id).first()
     
     def get_all_entries(self):
         return self.session.query(Avaliacao).all()
